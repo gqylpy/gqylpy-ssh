@@ -10,3 +10,6 @@ ssh = gssh.__init__(
 
 x: Command = ssh.cmd('hostname', timeout=4)
 print(x.status_output)
+
+x = gssh.cmd('kubectl get nodes', timeout=4).output2dict()
+print(list(x))

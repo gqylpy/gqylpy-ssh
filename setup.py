@@ -7,7 +7,7 @@ setuptools.setup(
     author='竹永康',
     author_email='gqylpy@outlook.com',
     license='Apache 2.0',
-    url='',
+    url='https://github.com/gqylpy/gqylpy-ssh',
     long_description=open('README.md', encoding='utf8').read(),
     packages=[g.__name__],
     requires=['paramiko>=2.9.2'],

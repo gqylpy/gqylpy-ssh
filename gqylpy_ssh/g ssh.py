@@ -35,7 +35,7 @@ import functools
 from paramiko import SSHClient, AutoAddPolicy
 from paramiko.channel import ChannelFile, ChannelStderrFile
 
-__default__: 'GqylpySSH'
+__first__: 'GqylpySSH'
 
 gcode = sys.modules[__name__]
 gpack = sys.modules[__name__[:-6]]
@@ -44,14 +44,13 @@ gpack = sys.modules[__name__[:-6]]
 def __init__(hostname: str, *, gname: str = None, **params) -> 'GqylpySSH':
     gobj = GqylpySSH(hostname, **params)
 
+    if not hasattr(gcode, '__first__'):
+        gcode.__first__ = gobj
+
     if gname is not None:
         if gname.__class__ is not str:
             x: str = gname.__class__.__name__
             raise TypeError(f'gname type must be a "str", not "{x}".')
-
-        if not hasattr(gcode, '__default__'):
-            gcode.__default__ = gobj
-
         setattr(gpack, gname, gobj)
 
     return gobj
@@ -108,7 +107,7 @@ class GqylpySSH(SSHClient):
         )
         return Command(command, stdout, stderr)
 
-    def cmd_many(self, commands: (tuple, list), **kw) -> iter:
+    def cmd_many(self, commands: (tuple, list), **kw):
         if commands.__class__ is tuple:
             for c in commands:
                 c: str = c.rstrip()
@@ -192,24 +191,24 @@ class Command:
             return self.output
         raise SSHCommandError(f'({self.command}): "{self.output}"')
 
-    def table_output_to_dict(self, split: str = None) -> list:
+    def output2dict(self, split: str = None) -> list:
         return table2dict(self.output_else_raise, split=split)
 
 
-def table2dict(table: str, *, split: str = None) -> list:
+def table2dict(table: str, *, split: str = None):
     result = [[value.strip() for value in line.split(split)]
               for line in table.splitlines()]
     keys = [key.lower() for key in result[0]]
-    return [dict(zip(keys, values)) for values in result[1:]]
+    return (dict(zip(keys, values)) for values in result[1:])
 
 
 def gname2gobj(func):
     @functools.wraps(func)
     def inner(*a, gname: (str, GqylpySSH) = None, **kw):
         if gname is None:
-            if not hasattr(gcode, '__default__'):
-                raise RuntimeError('You did not create the default GqylpySSH object.')
-            gobj: GqylpySSH = __default__
+            if not hasattr(gcode, '__first__'):
+                raise RuntimeError('You did not create the default GqylpySSH instance.')
+            gobj: GqylpySSH = __first__
         elif gname.__class__ is str:
             gobj: GqylpySSH = getattr(gpack, gname, None)
             if gobj.__class__ is not GqylpySSH:
@@ -218,7 +217,7 @@ def gname2gobj(func):
             gobj: GqylpySSH = gname
         else:
             x: str = gname.__class__.__name__
-            raise TypeError(f'Parameter "gname" type must be a "str" or "GqylpySSH". not "{x}".')
+            raise TypeError(f'Parameter "gname" type must be a str or GqylpySSH instance. not "{x}".')
         return func(*a, gobj=gobj, **kw)
     return inner
 

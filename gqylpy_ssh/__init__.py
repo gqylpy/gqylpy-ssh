@@ -27,7 +27,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-__version__ = 1, 0, 'dev2'
+__version__ = 1, 0, 'dev3'
 
 import paramiko
 
@@ -56,11 +56,11 @@ def __init__(
         disabled_algorithms=None,
         gname: str = None,
 ) -> 'GqylpySSH':
-    """Get a GqylpySSH object.
+    """Get a GqylpySSH instance.
 
     @param gname:
-        Assigns the initialized GqylpySSH object to
-        a variable in the current module, if not None.
+        Create a pointer to the GqylpySSH instance
+        in the gqylpy_ssh module, if not None.
 
     @return: GqylpySSH(**@param)
     """
@@ -87,11 +87,11 @@ def __init__(
         disabled_algorithms=disabled_algorithms
     )
 
+    if not hasattr(gpack, '__first__'):
+        gpack.__first__ = gobj
+
     if gname is not None:
-        this = sys.modules[__name__]
-        if not hasattr(this, '__default__'):
-            this.__default__ = gobj
-        setattr(this, gname, gobj)
+        setattr(gpack, gname, gobj)
 
     return gobj
 
@@ -250,12 +250,27 @@ class Command:
             return self.output
         raise SSHCommandError
 
-    def table_output_to_dict(self, split: str = None) -> list:
+    def output2dict(self, split: str = None) -> 'Generator':
         """Used to turn the command output result with a title
         into a dictionary, such as `kubectl get nodes`."""
         return table2dict(self.output_else_raise, split=split)
 
 
+def gname2gobj(func):
+    def inner(*a, gname: 'Union[str, GqylpySSH]' = None, **kw) -> Command:
+        if gname is None:
+            gobj: GqylpySSH = __first__
+        elif gname.__class__ is str:
+            gobj: GqylpySSH = getattr(gpack, gname)
+        elif gname.__class__ is GqylpySSH:
+            gobj: GqylpySSH = gname
+        else:
+            raise TypeError
+        return func(*a, gname=gobj, **kw)
+    return inner
+
+
+@gname2gobj
 def cmd(
         command: str,
         *,
@@ -272,9 +287,9 @@ def cmd(
     @param get_pty: Whether to enable pseudo-terminal, default False.
     @param env: A dictionary of environment variables.
                 Indication: The server may reject environment variables.
-    @param gname: A GqylpySSH object or pointer to a GqylpySSH object.
+    @param gname: GqylpySSH instance or pointer name of GqylpySSH instance.
     """
-    return (gname or __default__).cmd(
+    return (gname or __first__).cmd(
         command=command,
         timeout=timeout,
         bufsize=bufsize,
@@ -283,6 +298,7 @@ def cmd(
     )
 
 
+@gname2gobj
 def cmd_many(
         commands: 'Union[list, tuple]',
         *,
@@ -299,9 +315,9 @@ def cmd_many(
     @param get_pty: Whether to enable pseudo-terminal, default False.
     @param env: A dictionary of environment variables.
                 Indication: The server may reject environment variables.
-    @param gname: A GqylpySSH object or pointer to a GqylpySSH object.
+    @param gname: GqylpySSH instance or pointer name of GqylpySSH instance.
     """
-    return (gname or __default__).cmd_many(
+    return (gname or __first__).cmd_many(
         commands=commands,
         timeout=timeout,
         bufsize=bufsize,
@@ -310,6 +326,7 @@ def cmd_many(
     )
 
 
+@gname2gobj
 def cmd_async(
         command: str,
         *,
@@ -326,9 +343,9 @@ def cmd_async(
     @param get_pty: Whether to enable pseudo-terminal, default False.
     @param env: A dictionary of environment variables.
                 Indication: The server may reject environment variables.
-    @param gname: A GqylpySSH object or pointer to a GqylpySSH object.
+    @param gname: GqylpySSH instance or pointer name of GqylpySSH instance.
     """
-    return (gname or __default__).cmd_async(
+    return (gname or __first__).cmd_async(
         command=command,
         timeout=timeout,
         bufsize=bufsize,
@@ -337,14 +354,16 @@ def cmd_async(
     )
 
 
-__default__: GqylpySSH
+import sys
+import threading
+from typing import Union, Tuple, Generator
+
+__first__: GqylpySSH
+gpack = sys.modules[__name__]
 
 
-class _______g________q_______________L_______P_______Y_______:
-    import sys
-
+class ______歌______琪______怡______玲______萍______云______:
     __import__(f'{__name__}.g {__name__[7:]}')
-    gpack = sys.modules[__name__]
     gcode = globals()[f'g {__name__[7:]}']
 
     for gname in globals():
@@ -352,7 +371,3 @@ class _______g________q_______________L_______P_______Y_______:
             setattr(gpack, gname, getattr(gcode, gname))
 
     setattr(gpack, '__init__', gcode.__init__)
-
-
-import threading
-from typing import Union, Tuple, Generator
