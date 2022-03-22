@@ -20,6 +20,7 @@ import warnings
 import threading
 import functools
 
+import paramiko
 from paramiko import SSHClient, AutoAddPolicy
 from paramiko.channel import ChannelFile, ChannelStderrFile
 
@@ -49,7 +50,18 @@ class GqylpySSH(SSHClient):
     def __init__(self, hostname: str, **params):
         super().__init__()
         self.set_missing_host_key_policy(AutoAddPolicy())
-        self.connect(hostname, **params)
+
+        key_filename: str = params.get('key_filename')
+        key_password: str = params.pop('key_password', None)
+
+        if key_filename is not None and key_password is not None:
+            pkey = paramiko.RSAKey.from_private_key_file(
+                key_filename, key_password)
+            del params['key_filename']
+        else:
+            pkey = None
+
+        self.connect(hostname, **params, pkey=pkey)
 
     def __del__(self):
         self.close()

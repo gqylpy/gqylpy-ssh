@@ -10,14 +10,14 @@
 
 <kbd>pip3 install gqylpy_ssh</kbd>
 
-首先需要初始化 GqylpySSH 实例：
+首先初始化 `GqylpySSH` 实例：
 ```python
 import gqylpy_ssh as gssh
 
 gssh.__init__(
     hostname='192.168.1.100',
     username='gqylpy',
-    password='user@gqylpy'
+    password='secret@gqylpy'
 )
 ```
 
@@ -43,7 +43,7 @@ status, output = c.status_output
 output: str = c.output_else_raise
 ```
 
-获得命令输出，若命令执行错误，将返回 `define value`：
+获得命令输出，若命令执行错误，将返回 "define value"：
 ```python
 output: str = c.output_else_define('define value')
 ```
@@ -61,4 +61,26 @@ output: str = c.output_if_contain_string_else_raise('string')
 这个方法可将带有标题的输出转为字典：
 ```python
 it = c.output2dict('kubectl get nodes')
+```
+___
+
+当然支持创建多个 `GqylpySSH` 实例：
+```python
+from gqylpy_ssh import GqylpySSH, Command
+
+ssh = GqylpySSH('192.168.1.100', **params)
+c: Command = ssh.cmd('hostname')
+output: str = c.output_else_raise
+```
+
+```python
+import gqylpy_ssh as gssh
+
+gssh.__init__('192.168.1.100', **params, gname='1.100')
+gssh.__init__('192.168.1.200', **params, gname='1.200')
+
+output: str = gssh.cmd('hostname', gname='1.100').output_else_raise
+output: str = gssh.cmd('hostname', gname='1.200').output_else_raise
+
+gssh.cmd('hostname').output == gssh.cmd('hostname', gname='1.100').output
 ```

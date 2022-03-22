@@ -15,7 +15,7 @@
 
 Copyright © 2022 GQYLPY. 竹永康 <gqylpy@outlook.com>
 """
-__version__ = 1, 0, 'dev4'
+__version__ = 1, 0, 'dev5'
 
 import paramiko
 
@@ -23,42 +23,64 @@ import paramiko
 def __init__(
         hostname: str,
         *,
-        port=22,
-        username=None,
-        password=None,
-        pkey=None,
-        key_filename=None,
-        timeout=None,
-        allow_agent=None,
-        look_for_keys=True,
-        compress=False,
-        sock=None,
-        gss_auth=False,
-        gss_kex=False,
-        gss_deleg_creds=True,
-        gss_host=None,
-        banner_timeout=None,
-        auth_timeout=None,
-        gss_trust_dns=True,
+        port: int = 22,
+        username: str = None,
+        password: str = None,
+        key_filename: str = None,
+        key_password: str = None,
+        timeout: int = None,
+        banner_timeout: int = None,
+        auth_timeout: int = None,
+        allow_agent: bool = True,
+        look_for_keys: bool = True,
+        compress: bool = False,
+        gss_auth: bool = False,
+        gss_kex: bool = False,
+        gss_deleg_creds: bool = True,
+        gss_host: str = None,
+        gss_trust_dns: bool = True,
         passphrase=None,
         disabled_algorithms=None,
+        sock=None,
         gname: str = None,
 ) -> 'GqylpySSH':
     """Get a GqylpySSH instance.
 
-    @param gname:
-        Create a pointer to the GqylpySSH instance
-        in the gqylpy_ssh module, if not None.
+    @param hostname: Remote host address.
+    @param port: Port of the remote host sshd server.
+    @param username: Defaults to the current local username.
+    @param password: Used for password authentication; is also used for
+                     private key decryption if @param(passphrase) is not given.
+    @param key_filename: Default file ~/.ssh/{id_rsa,id_dsa,id_ecdsa}.
+    @param key_password: If the key has a password.
+    @param timeout: TCP Connect timeout period (in seconds), default N.
+    @param banner_timeout: Timeout to wait for SSH banner display (in seconds), default N.
+    @param auth_timeout: Authentication timeout (in seconds), default N.
+    @param allow_agent: Whether to use SSH proxy.
+    @param look_for_keys: Whether to allow key login.
+    @param compress: Whether to enable compression.
+    @param gss_auth: Whether to use GSS-API authentication.
+    @param gss_kex: Whether to Perform GSS-API Key Exchange and user authentication.
+    @param gss_deleg_creds: Whether to delegate gSS-API client credentials.
+    @param gss_host: The targets name in the kerberos database, default hostname.
+    @param gss_trust_dns: Whether to trust DNS to securely normalize the names of connected hosts.
+    @param passphrase: Used for decrypting private keys.
+    @param disabled_algorithms: An optional dictionary passed to `Transport`
+                                and its namesake keyword argument.
+    @param sock: An open socket or socket-like object (such as a `.Channel`)
+                 to use for communication to the target host.
+    @param gname: Create a pointer to the GqylpySSH instance in the gqylpy_ssh module, if not None.
 
     @return: GqylpySSH(**@param)
     """
+
     gobj = GqylpySSH(
         hostname=hostname,
         port=port,
         username=username,
         password=password,
-        pkey=pkey,
         key_filename=key_filename,
+        key_password=key_password,
         timeout=timeout,
         allow_agent=allow_agent,
         look_for_keys=look_for_keys,
@@ -86,10 +108,80 @@ def __init__(
 
 class GqylpySSH(paramiko.SSHClient):
 
-    def __init__(self, **params):
+    def __init__(
+        self,
+        hostname: str,
+        *,
+        port: int = 22,
+        username: str = None,
+        password: str = None,
+        key_filename: str = None,
+        key_password: str = None,
+        timeout: int = None,
+        banner_timeout: int = None,
+        auth_timeout: int = None,
+        allow_agent: bool = True,
+        look_for_keys: bool = True,
+        compress: bool = False,
+        gss_auth: bool = False,
+        gss_kex: bool = False,
+        gss_deleg_creds: bool = True,
+        gss_host: str = None,
+        gss_trust_dns: bool = True,
+        passphrase=None,
+        disabled_algorithms=None,
+        sock=None
+    ):
+        """
+        @param hostname: Remote host address.
+        @param port: Port of the remote host sshd server.
+        @param username: Defaults to the current local username.
+        @param password: Used for password authentication; is also used for
+                         private key decryption if @param(passphrase) is not given.
+        @param key_filename: Default file ~/.ssh/{id_rsa,id_dsa,id_ecdsa}.
+        @param key_password: If the key has a password.
+        @param timeout: TCP Connect timeout period (in seconds), default N.
+        @param banner_timeout: Timeout to wait for SSH banner display (in seconds), default N.
+        @param auth_timeout: Authentication timeout (in seconds), default N.
+        @param allow_agent: Whether to use SSH proxy.
+        @param look_for_keys: Whether to allow key login.
+        @param compress: Whether to enable compression.
+        @param gss_auth: Whether to use GSS-API authentication.
+        @param gss_kex: Whether to Perform GSS-API Key Exchange and user authentication.
+        @param gss_deleg_creds: Whether to delegate gSS-API client credentials.
+        @param gss_host: The targets name in the kerberos database, default hostname.
+        @param gss_trust_dns: Whether to trust DNS to securely normalize the names of connected hosts.
+        @param passphrase: Used for decrypting private keys.
+        @param disabled_algorithms: An optional dictionary passed to `Transport`
+                                    and its namesake keyword argument.
+        @param sock: An open socket or socket-like object (such as a `.Channel`)
+                     to use for communication to the target host.
+        """
         super().__init__()
-        self.connect(**params)
-        self.params = params
+
+        self.connect(
+            hostname=hostname,
+            port=port,
+            username=username,
+            password=password,
+            pkey=paramiko.RSAKey.from_private_key_file(
+                key_filename, key_password
+            ) if key_filename is not None else None,
+            timeout=timeout,
+            allow_agent=allow_agent,
+            look_for_keys=look_for_keys,
+            compress=compress,
+            sock=sock,
+            gss_auth=gss_auth,
+            gss_kex=gss_kex,
+            gss_deleg_creds=gss_deleg_creds,
+            gss_host=gss_host,
+            banner_timeout=banner_timeout,
+            auth_timeout=auth_timeout,
+            gss_trust_dns=gss_trust_dns,
+            passphrase=passphrase,
+            disabled_algorithms=disabled_algorithms
+        )
 
     def __del__(self):
         self.close()
