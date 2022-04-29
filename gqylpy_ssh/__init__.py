@@ -15,7 +15,7 @@ Copyright © 2022 GQYLPY http://gqylpy.com
 ─██████████████─████████████████───────██████───────██████████████─██████───────────────██████───────
 ─────────────────────────────────────────────────────────────────────────────────────────────────────
 """
-__version__ = 1, 0, 'dev6'
+__version__ = 1, 0
 __author__ = '竹永康 <gqylpy@outlook.com>'
 __home__ = 'https://github.com/gqylpy/gqylpy-ssh'
 __license__ = 'GNU Lesser General Public License (LGPL)'

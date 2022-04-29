@@ -4,6 +4,8 @@
 [![License](https://img.shields.io/pypi/l/gqylpy_ssh)](https://github.com/gqylpy/gqylpy_ssh/blob/master/LICENSE)
 [![Downloads](https://pepy.tech/badge/gqylpy_ssh/month)](https://pepy.tech/project/gqylpy_ssh)
 
+# gqylpy-ssh
+
 本程序使用了 paramiko 库，这个库是基于 LGPL 协议发布的。
 
 > 在远程服务器执行命令并得到命令结果，它是对 paramiko 库的二次封装。通过 `Command` 对象，你可以得到这条命令的执行结果，状态等信息。
@@ -15,7 +17,7 @@
 import gqylpy_ssh as gssh
 
 gssh.__init__(
-    hostname='192.168.1.100',
+    hostname='192.168.1.7',
     username='gqylpy',
     password=...
 )

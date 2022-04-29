@@ -10,7 +10,7 @@ setuptools.setup(
     url=g.__home__,
     long_description=open('README.md', encoding='utf8').read(),
     packages=[g.__name__],
-    requires=['paramiko>=2.10.4'],
+    requires=['paramiko(>=2.10.4)'],
     install_requires=['paramiko>=2.10.4'],
     python_requires='>=3.6',
     classifiers=[
