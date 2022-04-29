@@ -1,4 +1,4 @@
-[<img alt="LOGO" src="http://www.gqylpy.com/static/img/favicon.ico" height="21" width="21"/>](http://www.gqylpy.com/)
+[<img alt="LOGO" src="http://www.gqylpy.com/static/img/favicon.ico" height="21" width="21"/>](http://www.gqylpy.com)
 [![Version](https://img.shields.io/pypi/v/gqylpy_ssh)](https://pypi.org/project/gqylpy_ssh/)
 [![Python Versions](https://img.shields.io/pypi/pyversions/gqylpy_ssh)](https://pypi.org/project/gqylpy_ssh)
 [![License](https://img.shields.io/pypi/l/gqylpy_ssh)](https://github.com/gqylpy/gqylpy_ssh/blob/master/LICENSE)
@@ -17,7 +17,7 @@ import gqylpy_ssh as gssh
 gssh.__init__(
     hostname='192.168.1.100',
     username='gqylpy',
-    password='secret@gqylpy'
+    password=...
 )
 ```
 
@@ -64,7 +64,7 @@ it = c.output2dict('kubectl get nodes')
 ```
 ___
 
-当然支持创建多个 `GqylpySSH` 实例：
+如果你需要创建多个 `GqylpySSH` 实例：
 ```python
 from gqylpy_ssh import GqylpySSH, Command
 

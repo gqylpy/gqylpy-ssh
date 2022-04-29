@@ -1,4 +1,6 @@
 """
+Copyright © 2022 GQYLPY <gqylpy@outlook.com>
+
 ─────────────────────────────────────────────────────────────────────────────────────────────────────
 ─██████████████─██████████████───████████──████████─██████─────────██████████████─████████──████████─
 ─██░░░░░░░░░░██─██░░░░░░░░░░██───██░░░░██──██░░░░██─██░░██─────────██░░░░░░░░░░██─██░░░░██──██░░░░██─
@@ -12,8 +14,6 @@
 ─██░░░░░░░░░░██─██░░░░░░░░░░░░██───────██░░██───────██░░░░░░░░░░██─██░░██───────────────██░░██───────
 ─██████████████─████████████████───────██████───────██████████████─██████───────────────██████───────
 ─────────────────────────────────────────────────────────────────────────────────────────────────────
-
-Copyright © 2022 GQYLPY. 竹永康 <gqylpy@outlook.com>
 """
 import sys
 import warnings
@@ -227,7 +227,7 @@ def cmd(command: str, *, gobj: GqylpySSH = None, **kw) -> Command:
 
 
 @gname2gobj
-def cmd_many(commands: (tuple, list), *, gobj: GqylpySSH = None, **kw) -> list:
+def cmd_many(commands: (tuple, list), *, gobj: GqylpySSH = None, **kw):
     return gobj.cmd_many(commands, **kw)
 
 
@@ -237,4 +237,4 @@ def cmd_async(command: str, *, gobj: GqylpySSH = None, **kw) -> threading.Thread
 
 
 class SSHCommandError(Exception):
-    __module__ = 'e'
+    __module__ = gpack.__name__
