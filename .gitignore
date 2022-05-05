@@ -107,4 +107,5 @@ ENV/
 *.nc
 conda-requirements.txt
 
-changelog.txt
+changelog.yml
+self_test.py

@@ -37,17 +37,16 @@ import paramiko
 from paramiko import SSHClient, AutoAddPolicy
 from paramiko.channel import ChannelFile, ChannelStderrFile
 
-__first__: 'GqylpySSH'
-
+first: 'GqylpySSH'
+gpack = sys.modules[__package__]
 gcode = sys.modules[__name__]
-gpack = sys.modules[__name__[:-6]]
 
 
 def __init__(hostname: str, *, gname: str = None, **params) -> 'GqylpySSH':
     gobj = GqylpySSH(hostname, **params)
 
-    if not hasattr(gcode, '__first__'):
-        gcode.__first__ = gobj
+    if not hasattr(gcode, 'first'):
+        gcode.first = gobj
 
     if gname is not None:
         if gname.__class__ is not str:
@@ -218,9 +217,9 @@ def gname2gobj(func):
     @functools.wraps(func)
     def inner(*a, gname: (str, GqylpySSH) = None, **kw):
         if gname is None:
-            if not hasattr(gcode, '__first__'):
+            if not hasattr(gcode, 'first'):
                 raise RuntimeError('You did not create the default GqylpySSH instance.')
-            gobj: GqylpySSH = __first__
+            gobj: GqylpySSH = first
         elif gname.__class__ is str:
             gobj: GqylpySSH = getattr(gpack, gname, None)
             if gobj.__class__ is not GqylpySSH:

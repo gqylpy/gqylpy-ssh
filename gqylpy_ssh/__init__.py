@@ -28,7 +28,7 @@ PURPOSE. See the GNU Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public License along with
 gqylpy-ssh. If not, see <https://www.gnu.org/licenses/>.
 """
-__version__ = 1, 0, 1
+__version__ = 1, 0, 2, 'dev1'
 __author__ = '竹永康 <gqylpy@outlook.com>'
 __source__ = 'https://github.com/gqylpy/gqylpy-ssh'
 __license__ = 'GNU Lesser General Public License (LGPL)'
@@ -113,11 +113,11 @@ def __init__(
         disabled_algorithms=disabled_algorithms
     )
 
-    if not hasattr(gpack, '__first__'):
-        gpack.__first__ = gobj
+    if not hasattr(__gpack__, '__first__'):
+        __gpack__.__first__ = gobj
 
     if gname is not None:
-        setattr(gpack, gname, gobj)
+        setattr(__gpack__, gname, gobj)
 
     return gobj
 
@@ -356,7 +356,7 @@ def gname2gobj(func):
         if gname is None:
             gobj: GqylpySSH = __first__
         elif gname.__class__ is str:
-            gobj: GqylpySSH = getattr(gpack, gname)
+            gobj: GqylpySSH = getattr(__gpack__, gname)
         elif gname.__class__ is GqylpySSH:
             gobj: GqylpySSH = gname
         else:
@@ -454,7 +454,7 @@ import threading
 from typing import Union, Tuple, Generator
 
 __first__: GqylpySSH
-gpack = sys.modules[__name__]
+__gpack__ = sys.modules[__name__]
 
 
 class ______歌______琪______怡______玲______萍______云______:
@@ -463,6 +463,6 @@ class ______歌______琪______怡______玲______萍______云______:
 
     for gname in globals():
         if gname[0] != '_' and hasattr(gcode, gname):
-            setattr(gpack, gname, getattr(gcode, gname))
+            setattr(__gpack__, gname, getattr(gcode, gname))
 
-    setattr(gpack, '__init__', gcode.__init__)
+    setattr(__gpack__, '__init__', gcode.__init__)
