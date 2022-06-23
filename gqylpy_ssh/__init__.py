@@ -28,7 +28,7 @@ PURPOSE. See the GNU Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public License along with
 gqylpy-ssh. If not, see <https://www.gnu.org/licenses/>.
 """
-__version__ = 1, 0, 2, 'dev1'
+__version__ = 1, 0, 2, 'alpha2'
 __author__ = '竹永康 <gqylpy@outlook.com>'
 __source__ = 'https://github.com/gqylpy/gqylpy-ssh'
 __license__ = 'GNU Lesser General Public License (LGPL)'
@@ -463,6 +463,8 @@ class ______歌______琪______怡______玲______萍______云______:
 
     for gname in globals():
         if gname[0] != '_' and hasattr(gcode, gname):
-            setattr(__gpack__, gname, getattr(gcode, gname))
+            gfunc = getattr(gcode, gname)
+            gfunc.__module__ = __package__
+            setattr(__gpack__, gname, gfunc)
 
     setattr(__gpack__, '__init__', gcode.__init__)
