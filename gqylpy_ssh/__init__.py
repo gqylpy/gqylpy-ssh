@@ -13,7 +13,7 @@
 ─██████████████─████████████████───────██████───────██████████████─██████───────────────██████───────
 ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
-Copyright (C) 2022 GQYLPY <http://gqylpy.com>
+Copyright (c) 2022 GQYLPY <http://gqylpy.com>. All rights reserved.
 
 This file is part of gqylpy-ssh.
 
@@ -28,7 +28,7 @@ PURPOSE. See the GNU Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public License along with
 gqylpy-ssh. If not, see <https://www.gnu.org/licenses/>.
 """
-__version__ = 1, 0, 2, 'alpha2'
+__version__ = 1, 0, 2
 __author__ = '竹永康 <gqylpy@outlook.com>'
 __source__ = 'https://github.com/gqylpy/gqylpy-ssh'
 __license__ = 'GNU Lesser General Public License (LGPL)'

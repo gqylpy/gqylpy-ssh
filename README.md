@@ -40,7 +40,7 @@ output: str = c.output
 status, output = c.status_output
 ```
 
-获得命令输出，若命令执行错误，将抛出异常
+获得命令输出，若命令执行错误，将抛出异常：
 ```python
 output: str = c.output_else_raise
 ```
