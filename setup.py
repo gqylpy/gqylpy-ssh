@@ -12,8 +12,8 @@ setuptools.setup(
     long_description=open('README.md', encoding='utf8').read(),
     long_description_content_type='text/markdown',
     packages=[g.__name__],
-    requires=['paramiko(>=2.10.4)'],
-    install_requires=['paramiko>=2.10.4'],
+    requires=['paramiko(>=2.10.4,<3.0)'],
+    install_requires=['paramiko>=2.10.4,<3.0'],
     python_requires='>=3.6',
     classifiers=[
         'Environment :: Web Environment',
