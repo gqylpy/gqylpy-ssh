@@ -17,18 +17,19 @@ Copyright (c) 2022 GQYLPY <http://gqylpy.com>. All rights reserved.
 
 This file is part of gqylpy-ssh.
 
-gqylpy-ssh is free software: you can redistribute it and/or modify it under the terms
-of the GNU Lesser General Public License as published by the Free Software Foundation,
-either version 3 of the License, or (at your option) any later version.
+gqylpy-ssh is free software: you can redistribute it and/or modify it under the
+terms of the GNU Lesser General Public License as published by the Free Software
+Foundation, either version 3 of the License, or (at your option) any later
+version.
 
-gqylpy-ssh is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-PURPOSE. See the GNU Lesser General Public License for more details.
+gqylpy-ssh is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 
-You should have received a copy of the GNU Lesser General Public License along with
-gqylpy-ssh. If not, see <https://www.gnu.org/licenses/>.
+You should have received a copy of the GNU Lesser General Public License along
+with gqylpy-ssh. If not, see <https://www.gnu.org/licenses/>.
 """
-__version__ = 1, 0, 3, 'alpha5'
+__version__ = 1, 0, 3
 __author__ = '竹永康 <gqylpy@outlook.com>'
 __source__ = 'https://github.com/gqylpy/gqylpy-ssh'
 
@@ -36,79 +37,91 @@ import paramiko
 
 
 def __init__(
-        hostname: str,
+        hostname:        str,
         *,
-        port: int = 22,
-        username: str = None,
-        password: str = None,
-        key_filename: str = None,
-        key_password: str = None,
-        timeout: int = None,
-        banner_timeout: int = None,
-        auth_timeout: int = None,
-        allow_agent: bool = True,
-        look_for_keys: bool = True,
-        compress: bool = False,
-        gss_auth: bool = False,
-        gss_kex: bool = False,
+        port:            int  = 22,
+        username:        str  = None,
+        password:        str  = None,
+        key_filename:    str  = None,
+        key_password:    str  = None,
+        timeout:         int  = None,
+
+        banner_timeout:  int  = None,
+        auth_timeout:    int  = None,
+        allow_agent:     bool = True,
+        look_for_keys:   bool = True,
+        compress:        bool = False,
+        gss_auth:        bool = False,
+        gss_kex:         bool = False,
         gss_deleg_creds: bool = True,
-        gss_host: str = None,
-        gss_trust_dns: bool = True,
-        passphrase=None,
-        disabled_algorithms=None,
-        sock=None,
-        gname: str = None,
+        gss_host:        str  = None,
+        gss_trust_dns:   bool = True,
+        passphrase            = None,
+        disabled_algorithms   = None,
+        sock                  = None,
+
+        gname:           str  = None
 ) -> 'GqylpySSH':
     """Get a GqylpySSH instance.
 
-    @param hostname: Remote host address.
-    @param port: Port of the remote host sshd server.
-    @param username: Defaults to the current local username.
-    @param password: Used for password authentication; is also used for
-                     private key decryption if @param(passphrase) is not given.
+    @param hostname:     Remote host address.
+    @param port:         Port of the remote host sshd server.
+    @param username:     Defaults to the current local username.
+    @param password:     Used for password authentication; is also used for
+                         private key decryption if @param(passphrase) is not
+                         given.
     @param key_filename: Default file ~/.ssh/{id_rsa,id_dsa,id_ecdsa}.
     @param key_password: If the key has a password.
-    @param timeout: TCP Connect timeout period (in seconds), default N.
-    @param banner_timeout: Timeout to wait for SSH banner display (in seconds), default N.
-    @param auth_timeout: Authentication timeout (in seconds), default N.
-    @param allow_agent: Whether to use SSH proxy.
-    @param look_for_keys: Whether to allow key login.
-    @param compress: Whether to enable compression.
-    @param gss_auth: Whether to use GSS-API authentication.
-    @param gss_kex: Whether to Perform GSS-API Key Exchange and user authentication.
-    @param gss_deleg_creds: Whether to delegate gSS-API client credentials.
-    @param gss_host: The targets name in the kerberos database, default hostname.
-    @param gss_trust_dns: Whether to trust DNS to securely normalize the names of connected hosts.
-    @param passphrase: Used for decrypting private keys.
-    @param disabled_algorithms: An optional dictionary passed to `Transport`
-                                and its namesake keyword argument.
-    @param sock: An open socket or socket-like object (such as a `.Channel`)
-                 to use for communication to the target host.
-    @param gname: Create a pointer to the GqylpySSH instance in the gqylpy_ssh module, if not None.
+    @param timeout:      TCP Connect timeout period (in seconds), default
+                         permanent.
+
+    @param banner_timeout:      Timeout to wait for SSH banner display (in
+                                seconds), default permanent.
+    @param auth_timeout:        Authentication timeout (in seconds), default
+                                permanent.
+    @param allow_agent:         Whether to use SSH proxy.
+    @param look_for_keys:       Whether to allow key login.
+    @param compress:            Whether to enable compression.
+    @param gss_auth:            Whether to use GSS-API authentication.
+    @param gss_kex:             Whether to Perform GSS-API Key Exchange and user
+                                authentication.
+    @param gss_deleg_creds:     Whether to delegate gSS-API client credentials.
+    @param gss_host:            The target name in the kerberos database,
+                                default hostname.
+    @param gss_trust_dns:       Whether to trust DNS to securely normalize the
+                                names connected hosts.
+    @param passphrase:          Used for decrypting private keys.
+    @param disabled_algorithms: An optional dictionary passed to `Transport` and
+                                its namesake keyword argument.
+    @param sock:                An open socket or socket-like object (such as a
+                                `.Channel`) to use for communication to the
+                                target host.
+
+    @param gname: Create a pointer to the GqylpySSH instance in the gqylpy_ssh
+                  module, if not None.
 
     @return: GqylpySSH(**@param)
     """
-
     gobj = GqylpySSH(
-        hostname=hostname,
-        port=port,
-        username=username,
-        password=password,
-        key_filename=key_filename,
-        key_password=key_password,
-        timeout=timeout,
-        allow_agent=allow_agent,
-        look_for_keys=look_for_keys,
-        compress=compress,
-        sock=sock,
-        gss_auth=gss_auth,
-        gss_kex=gss_kex,
-        gss_deleg_creds=gss_deleg_creds,
-        gss_host=gss_host,
-        banner_timeout=banner_timeout,
-        auth_timeout=auth_timeout,
-        gss_trust_dns=gss_trust_dns,
-        passphrase=passphrase,
+        hostname           =hostname,
+        port               =port,
+        username           =username,
+        password           =password,
+        key_filename       =key_filename,
+        key_password       =key_password,
+        timeout            =timeout,
+        allow_agent        =allow_agent,
+        look_for_keys      =look_for_keys,
+        compress           =compress,
+        sock               =sock,
+        gss_auth           =gss_auth,
+        gss_kex            =gss_kex,
+        gss_deleg_creds    =gss_deleg_creds,
+        gss_host           =gss_host,
+        banner_timeout     =banner_timeout,
+        auth_timeout       =auth_timeout,
+        gss_trust_dns      =gss_trust_dns,
+        passphrase         =passphrase,
         disabled_algorithms=disabled_algorithms
     )
 
@@ -125,76 +138,85 @@ class GqylpySSH(paramiko.SSHClient):
 
     def __init__(
         self,
-        hostname: str,
+        hostname:        str,
         *,
-        port: int = 22,
-        username: str = None,
-        password: str = None,
-        key_filename: str = None,
-        key_password: str = None,
-        timeout: int = None,
-        banner_timeout: int = None,
-        auth_timeout: int = None,
-        allow_agent: bool = True,
-        look_for_keys: bool = True,
-        compress: bool = False,
-        gss_auth: bool = False,
-        gss_kex: bool = False,
+        port:            int  = 22,
+        username:        str  = None,
+        password:        str  = None,
+        key_filename:    str  = None,
+        key_password:    str  = None,
+        timeout:         int  = None,
+        banner_timeout:  int  = None,
+        auth_timeout:    int  = None,
+        allow_agent:     bool = True,
+        look_for_keys:   bool = True,
+        compress:        bool = False,
+        gss_auth:        bool = False,
+        gss_kex:         bool = False,
         gss_deleg_creds: bool = True,
-        gss_host: str = None,
-        gss_trust_dns: bool = True,
-        passphrase=None,
-        disabled_algorithms=None,
-        sock=None
+        gss_host:        str  = None,
+        gss_trust_dns:   bool = True,
+        passphrase            = None,
+        disabled_algorithms   = None,
+        sock                  = None
     ):
         """
-        @param hostname: Remote host address.
-        @param port: Port of the remote host sshd server.
-        @param username: Defaults to the current local username.
-        @param password: Used for password authentication; is also used for
-                         private key decryption if @param(passphrase) is not given.
+        @param hostname:     Remote host address.
+        @param port:         Port of the remote host sshd server.
+        @param username:     Defaults to the current local username.
+        @param password:     Used for password authentication; is also used for
+                             private key decryption if @param(passphrase) is not
+                             given.
         @param key_filename: Default file ~/.ssh/{id_rsa,id_dsa,id_ecdsa}.
         @param key_password: If the key has a password.
-        @param timeout: TCP Connect timeout period (in seconds), default N.
-        @param banner_timeout: Timeout to wait for SSH banner display (in seconds), default N.
-        @param auth_timeout: Authentication timeout (in seconds), default N.
-        @param allow_agent: Whether to use SSH proxy.
-        @param look_for_keys: Whether to allow key login.
-        @param compress: Whether to enable compression.
-        @param gss_auth: Whether to use GSS-API authentication.
-        @param gss_kex: Whether to Perform GSS-API Key Exchange and user authentication.
-        @param gss_deleg_creds: Whether to delegate gSS-API client credentials.
-        @param gss_host: The targets name in the kerberos database, default hostname.
-        @param gss_trust_dns: Whether to trust DNS to securely normalize the names of connected hosts.
-        @param passphrase: Used for decrypting private keys.
+        @param timeout:      TCP Connect timeout period (in seconds), default
+                             permanent.
+        @param banner_timeout:      Timeout to wait for SSH banner display (in
+                                    seconds), default permanent.
+        @param auth_timeout:        Authentication timeout (in seconds), default
+                                    permanent.
+        @param allow_agent:         Whether to use SSH proxy.
+        @param look_for_keys:       Whether to allow key login.
+        @param compress:            Whether to enable compression.
+        @param gss_auth:            Whether to use GSS-API authentication.
+        @param gss_kex:             Whether to Perform GSS-API Key Exchange and
+                                    user authentication.
+        @param gss_deleg_creds:     Whether to delegate gSS-API client
+                                    credentials.
+        @param gss_host:            The target name in the kerberos database,
+                                    default hostname.
+        @param gss_trust_dns:       Whether to trust DNS to securely normalize
+                                    the names connected hosts.
+        @param passphrase:          Used for decrypting private keys.
         @param disabled_algorithms: An optional dictionary passed to `Transport`
                                     and its namesake keyword argument.
-        @param sock: An open socket or socket-like object (such as a `.Channel`)
-                     to use for communication to the target host.
+        @param sock:                An open socket or socket-like object (such
+                                    as a `.Channel`) to use for communication to
+                                    the target host.
         """
         super().__init__()
 
         self.connect(
-            hostname=hostname,
-            port=port,
-            username=username,
-            password=password,
-            pkey=paramiko.RSAKey.from_private_key_file(
-                key_filename, key_password
-            ) if key_filename is not None else None,
-            timeout=timeout,
-            allow_agent=allow_agent,
-            look_for_keys=look_for_keys,
-            compress=compress,
-            sock=sock,
-            gss_auth=gss_auth,
-            gss_kex=gss_kex,
-            gss_deleg_creds=gss_deleg_creds,
-            gss_host=gss_host,
-            banner_timeout=banner_timeout,
-            auth_timeout=auth_timeout,
-            gss_trust_dns=gss_trust_dns,
-            passphrase=passphrase,
+            hostname           =hostname,
+            port               =port,
+            username           =username,
+            password           =password,
+            pkey               =paramiko.RSAKey.from_private_key_file(
+                                    key_filename, key_password
+                                ) if key_filename is not None else None,
+            timeout            =timeout,
+            allow_agent        =allow_agent,
+            look_for_keys      =look_for_keys,
+            compress           =compress,
+            sock               =sock,
+            gss_auth           =gss_auth,
+            gss_kex            =gss_kex,
+            gss_deleg_creds    =gss_deleg_creds,
+            gss_host           =gss_host,
+            banner_timeout     =banner_timeout,
+            auth_timeout       =auth_timeout,
+            gss_trust_dns      =gss_trust_dns,
+            passphrase         =passphrase,
             disabled_algorithms=disabled_algorithms
         )
 
@@ -205,18 +227,18 @@ class GqylpySSH(paramiko.SSHClient):
             self,
             command: str,
             *,
-            timeout: int = None,
-            bufsize: int = None,
+            timeout: int  = None,
+            bufsize: int  = None,
             get_pty: bool = None,
-            env: dict = None
+            env:     dict = None
     ) -> 'Command':
         """
         @param command: A command string.
-        @param timeout: Execute command timeout, default N.
-        @param bufsize: Buffer size, default N.
+        @param timeout: Execute command timeout, default permanent.
+        @param bufsize: Buffer size, default permanent.
         @param get_pty: Whether to enable pseudo-terminal, default False.
-        @param env: A dictionary of environment variables.
-                    Indication: The server may reject environment variables.
+        @param env:     A dictionary of environment variables. Indication:
+                        server may reject environment variables.
         """
         if command[-1] == '&':
             return self.cmd_async(
@@ -242,15 +264,15 @@ class GqylpySSH(paramiko.SSHClient):
             timeout: int = None,
             bufsize: int = None,
             get_pty: bool = None,
-            env: dict = None
+            env:     dict = None
     ) -> 'Generator':
         """
         @param commands: A commands tuple or list.
-        @param timeout: Execute command timeout, default N.
-        @param bufsize: Buffer size, default N.
-        @param get_pty: Whether to enable pseudo-terminal, default False.
-        @param env: A dictionary of environment variables.
-                    Indication: The server may reject environment variables.
+        @param timeout:  Execute command timeout, default permanent.
+        @param bufsize:  Buffer size, default permanent.
+        @param get_pty:  Whether to enable pseudo-terminal, default False.
+        @param env:      A dictionary of environment variables. Indication:
+                         server may reject environment variables.
         """
         if isinstance(commands, list):
             yield from (self.cmd(
@@ -281,15 +303,15 @@ class GqylpySSH(paramiko.SSHClient):
             timeout: int = None,
             bufsize: int = None,
             get_pty: bool = None,
-            env: dict = None
+            env:     dict = None
     ) -> 'threading.Thread':
         """
         @param command: A command string.
-        @param timeout: Execute command timeout, default N.
-        @param bufsize: Buffer size, default N.
+        @param timeout: Execute command timeout, default permanent.
+        @param bufsize: Buffer size, default permanent.
         @param get_pty: Whether to enable pseudo-terminal, default False.
-        @param env: A dictionary of environment variables.
-                    Indication: The server may reject environment variables.
+        @param env:     A dictionary of environment variables. Indication:
+                        server may reject environment variables.
         """
         thread = threading.Thread(
             target=self.cmd,
@@ -314,7 +336,7 @@ class Command:
 
     def raise_if_error(self):
         if not self.status:
-            raise SSHCommandError(f'({self.command}) {self.output}')
+            raise SSHCommandError
 
     @property
     def status(self) -> bool:
@@ -339,6 +361,10 @@ class Command:
     def contain_string(self, string: str) -> bool:
         return string in self.output
 
+    def contain_string_else_raise(self, string: str):
+        if not self.contain_string(string):
+            raise SSHCommandError
+
     def output_if_contain_string_else_raise(self, string: str) -> str:
         if self.contain_string(string):
             return self.output
@@ -347,7 +373,6 @@ class Command:
     def output2dict(self, split: str = None) -> 'Generator':
         """Used to turn the command output result with a title
         into a dictionary, such as `kubectl get nodes`."""
-        return table2dict(self.output_else_raise, split=split)
 
 
 def gname2gobj(func):
@@ -371,17 +396,17 @@ def cmd(
         timeout: int = None,
         bufsize: int = None,
         get_pty: bool = None,
-        env: dict = None,
-        gname: 'Union[str, GqylpySSH]' = None
+        env:     dict = None,
+        gname:  'Union[str, GqylpySSH]' = None
 ) -> Command:
     """
     @param command: A command string.
-    @param timeout: Execute command timeout, default N.
-    @param bufsize: Buffer size, default N.
+    @param timeout: Execute command timeout, default permanent.
+    @param bufsize: Buffer size, default permanent.
     @param get_pty: Whether to enable pseudo-terminal, default False.
-    @param env: A dictionary of environment variables.
-                Indication: The server may reject environment variables.
-    @param gname: GqylpySSH instance or pointer name of GqylpySSH instance.
+    @param env:     A dictionary of environment variables. Indication:
+                    server may reject environment variables.
+    @param gname:   GqylpySSH instance or pointer name of GqylpySSH instance.
     """
     return (gname or __first__).cmd(
         command=command,
@@ -399,17 +424,17 @@ def cmd_many(
         timeout: int = None,
         bufsize: int = None,
         get_pty: bool = None,
-        env: dict = None,
-        gname: 'Union[str, GqylpySSH]' = None
+        env:     dict = None,
+        gname:  'Union[str, GqylpySSH]' = None
 ) -> 'Generator':
     """
     @param commands: A commands tuple or list.
-    @param timeout: Execute command timeout, default N.
-    @param bufsize: Buffer size, default N.
-    @param get_pty: Whether to enable pseudo-terminal, default False.
-    @param env: A dictionary of environment variables.
-                Indication: The server may reject environment variables.
-    @param gname: GqylpySSH instance or pointer name of GqylpySSH instance.
+    @param timeout:  Execute command timeout, default permanent.
+    @param bufsize:  Buffer size, default permanent.
+    @param get_pty:  Whether to enable pseudo-terminal, default False.
+    @param env:      A dictionary of environment variables. Indication:
+                     server may reject environment variables.
+    @param gname:    GqylpySSH instance or pointer name of GqylpySSH instance.
     """
     return (gname or __first__).cmd_many(
         commands=commands,
@@ -427,17 +452,17 @@ def cmd_async(
         timeout: int = None,
         bufsize: int = None,
         get_pty: bool = None,
-        env: dict = None,
-        gname: 'Union[str, GqylpySSH]' = None
+        env:     dict = None,
+        gname:  'Union[str, GqylpySSH]' = None
 ) -> 'threading.Thread':
     """
     @param command: A command string.
-    @param timeout: Execute command timeout, default N.
-    @param bufsize: Buffer size, default N.
+    @param timeout: Execute command timeout, default permanent.
+    @param bufsize: Buffer size, default permanent.
     @param get_pty: Whether to enable pseudo-terminal, default False.
-    @param env: A dictionary of environment variables.
-                Indication: The server may reject environment variables.
-    @param gname: GqylpySSH instance or pointer name of GqylpySSH instance.
+    @param env:     A dictionary of environment variables. Indication:
+                    server may reject environment variables.
+    @param gname:   GqylpySSH instance or pointer name of GqylpySSH instance.
     """
     return (gname or __first__).cmd_async(
         command=command,
@@ -456,7 +481,7 @@ __first__: GqylpySSH
 __gpack__ = sys.modules[__name__]
 
 
-class ______歌______琪______怡______玲______萍______云______:
+class _xe6_xad_x8c_xe7_x90_xaa_xe6_x80_xa1_xe7_x8e_xb2_xe8_x90_x8d_xe4_xba_x91:
     __import__(f'{__name__}.g {__name__[7:]}')
     gcode = globals()[f'g {__name__[7:]}']
 

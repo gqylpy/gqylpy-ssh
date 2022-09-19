@@ -1,5 +1,5 @@
 [<img alt="LOGO" src="http://www.gqylpy.com/static/img/favicon.ico" height="21" width="21"/>](http://www.gqylpy.com)
-[![Version](https://img.shields.io/pypi/v/gqylpy_ssh)](https://pypi.org/project/gqylpy_ssh/)
+[![Release](https://img.shields.io/github/release/gqylpy/gqylpy-ssh.svg?style=flat-square")](https://github.com/gqylpy/gqylpy-ssh/releases/latest)
 [![Python Versions](https://img.shields.io/pypi/pyversions/gqylpy_ssh)](https://pypi.org/project/gqylpy_ssh)
 [![License](https://img.shields.io/pypi/l/gqylpy_ssh)](https://github.com/gqylpy/gqylpy-ssh/blob/master/LICENSE)
 [![Downloads](https://pepy.tech/badge/gqylpy_ssh/month)](https://pepy.tech/project/gqylpy_ssh)
@@ -8,7 +8,7 @@
 
 本源代码使用了 paramiko 库，这个库是基于 LGPL 协议发布的。
 
-> 在远程服务器执行命令并得到命令结果，它是对 paramiko 库的二次封装。通过 `Command` 对象，你可以得到这条命令的执行结果，状态等信息。
+> 在远程服务器执行命令并得到执行结果，它是对 paramiko 库的二次封装。在 `Command` 对象中，提供了多种方法用于判断命令执行结果是否如期。
 
 <kbd>pip3 install gqylpy_ssh</kbd>
 
@@ -53,6 +53,11 @@ output: str = c.output_else_define('define value')
 检查命令输出是否包含某个字符串，得到一个布尔值：
 ```python
 x: bool = c.contain_string('string')
+```
+
+检查命令输出是否包含某个字符串，否则抛出异常：
+```python
+c.contain_string_else_raise('string')
 ```
 
 获得命令输出，如果输出包含某个字符串，否则抛出异常：

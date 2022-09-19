@@ -17,27 +17,30 @@ Copyright (c) 2022 GQYLPY <http://gqylpy.com>. All rights reserved.
 
 This file is part of gqylpy-ssh.
 
-gqylpy-ssh is free software: you can redistribute it and/or modify it under the terms
-of the GNU Lesser General Public License as published by the Free Software Foundation,
-either version 3 of the License, or (at your option) any later version.
+gqylpy-ssh is free software: you can redistribute it and/or modify it under the
+terms of the GNU Lesser General Public License as published by the Free Software
+Foundation, either version 3 of the License, or (at your option) any later
+version.
 
-gqylpy-ssh is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-PURPOSE. See the GNU Lesser General Public License for more details.
+gqylpy-ssh is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 
-You should have received a copy of the GNU Lesser General Public License along with
-gqylpy-ssh. If not, see <https://www.gnu.org/licenses/>.
+You should have received a copy of the GNU Lesser General Public License along
+with gqylpy-ssh. If not, see <https://www.gnu.org/licenses/>.
 """
 import sys
+import builtins
 import warnings
-import threading
 import functools
+import threading
 
 import paramiko
 from paramiko import SSHClient, AutoAddPolicy
 from paramiko.channel import ChannelFile, ChannelStderrFile
 
 first: 'GqylpySSH'
+
 gpack = sys.modules[__package__]
 gcode = sys.modules[__name__]
 
@@ -82,23 +85,33 @@ class GqylpySSH(SSHClient):
             self,
             command: str,
             *,
-            timeout: int = None,
-            bufsize: int = -1,
+            timeout: int  = None,
+            bufsize: int  = -1,
             get_pty: bool = False,
-            env: dict = None
+            env:     dict = None
     ) -> 'Command':
         if command.__class__ is not str:
             x: str = command.__class__.__name__
-            raise TypeError(f'Parameter "command" type must be a "str", not "{x}".')
+            raise TypeError(
+                f'parameter "command" type must be a "str", not "{x}".'
+            )
         if timeout is not None and timeout.__class__ not in (int, float):
             x: str = timeout.__class__.__name__
-            raise TypeError(f'Parameter "timeout" type must be a "int" or "float", not "{x}".')
+            raise TypeError(
+                'parameter "timeout" type must '
+                f'be a "int" or "float", not "{x}".'
+            )
         if bufsize.__class__ not in (int, float):
             x: str = bufsize.__class__.__name__
-            raise TypeError(f'Parameter "bufsize" type must be a "int" or "float", not "{x}".')
+            raise TypeError(
+                f'parameter "bufsize" type must '
+                f'be a "int" or "float", not "{x}".'
+            )
         if env is not None and env.__class__ is not dict:
             x: str = env.__class__.__name__
-            raise TypeError(f'Parameter "env" type must be a "dict", not "{x}".')
+            raise TypeError(
+                f'parameter "env" type must be a "dict", not "{x}".'
+            )
 
         command: str = command.strip()
 
@@ -126,7 +139,7 @@ class GqylpySSH(SSHClient):
                 if c[-1] == '&':
                     c = c[:-1]
                     warnings.warn(
-                        'Note that running multiple commands '
+                        'note that running multiple commands '
                         'in tuple mode cannot use asynchrony "&".'
                     )
                 co: Command = self.cmd(c, **kw)
@@ -151,8 +164,9 @@ class GqylpySSH(SSHClient):
         thread = threading.Thread(
             target=self.cmd,
             kwargs={'command': command, **kw},
-            name=f'AsyncSSHCommand({command})',
-            daemon=True)
+            name  =f'AsyncSSHCommand({command})',
+            daemon=True
+        )
         thread.start()
 
         return thread
@@ -160,7 +174,12 @@ class GqylpySSH(SSHClient):
 
 class Command:
 
-    def __init__(self, command: str, stdout: ChannelFile, stderr: ChannelStderrFile):
+    def __init__(
+            self,
+            command: str,
+            stdout:  ChannelFile,
+            stderr:  ChannelStderrFile
+    ):
         self.command = command
         self.stdout: bytes = stdout.read()
         self.stderr: bytes = stderr.read()
@@ -171,7 +190,7 @@ class Command:
 
     @property
     def status(self) -> bool:
-        return self.stdout[-9:] == b'\n4289077\n'
+        return self.stdout[-8:] == b'4289077\n'
 
     @property
     def output(self) -> str:
@@ -197,12 +216,17 @@ class Command:
     def contain_string(self, string: str) -> bool:
         return string in self.output
 
+    def contain_string_else_raise(self, string: str):
+        if string not in self.output:
+            raise SSHCommandError(f'({self.command}): "{self.output}"')
+
     def output_if_contain_string_else_raise(self, string: str) -> str:
-        if self.contain_string(string):
-            return self.output
+        output = self.output
+        if string in output:
+            return output
         raise SSHCommandError(f'({self.command}): "{self.output}"')
 
-    def output2dict(self, split: str = None) -> list:
+    def output2dict(self, split: str = None):
         return table2dict(self.output_else_raise, split=split)
 
 
@@ -218,17 +242,24 @@ def gname2gobj(func):
     def inner(*a, gname: (str, GqylpySSH) = None, **kw):
         if gname is None:
             if not hasattr(gcode, 'first'):
-                raise RuntimeError('You did not create the default GqylpySSH instance.')
+                raise RuntimeError(
+                    'you did not create the default GqylpySSH instance.'
+                )
             gobj: GqylpySSH = first
         elif gname.__class__ is str:
             gobj: GqylpySSH = getattr(gpack, gname, None)
             if gobj.__class__ is not GqylpySSH:
-                raise NameError(f'gname "{gname}" not found in {gpack.__name__}.')
+                raise NameError(
+                    f'gname "{gname}" not found in {gpack.__name__}.'
+                )
         elif gname.__class__ is GqylpySSH:
             gobj: GqylpySSH = gname
         else:
             x: str = gname.__class__.__name__
-            raise TypeError(f'Parameter "gname" type must be a str or GqylpySSH instance. not "{x}".')
+            raise TypeError(
+                'parameter "gname" type must be a '
+                f'str or GqylpySSH instance. not "{x}".'
+            )
         return func(*a, gobj=gobj, **kw)
     return inner
 
@@ -244,9 +275,14 @@ def cmd_many(commands: (tuple, list), *, gobj: GqylpySSH = None, **kw):
 
 
 @gname2gobj
-def cmd_async(command: str, *, gobj: GqylpySSH = None, **kw) -> threading.Thread:
+def cmd_async(
+        command: str, *, gobj: GqylpySSH = None, **kw
+) -> threading.Thread:
     return gobj.cmd_async(command, **kw)
 
 
 class SSHCommandError(Exception):
-    __module__ = gpack.__name__
+    __module__ = 'builtins'
+
+
+builtins.SSHCommandError = SSHCommandError
