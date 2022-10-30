@@ -33,16 +33,16 @@ c = gssh.cmd('hostname')
 c.raise_if_error()
 ```
 
-获得命令状态或输出：
+获得命令状态或/和输出：
 ```python
-status: bool = c.status
-output: str = c.output
+status: bool   = c.status
+output: str    = c.output
 status, output = c.status_output
 ```
 
 获得命令输出，若命令执行错误，将抛出异常：
 ```python
-output: str = c.output_else_raise
+output: str = c.output_else_raise()
 ```
 
 获得命令输出，若命令执行错误，将返回 "define value"：

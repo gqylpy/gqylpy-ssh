@@ -204,7 +204,6 @@ class Command:
     def status_output(self) -> tuple:
         return self.status, self.output
 
-    @property
     def output_else_raise(self) -> str:
         if self.status:
             return self.output

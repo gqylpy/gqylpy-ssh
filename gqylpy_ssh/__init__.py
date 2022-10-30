@@ -29,7 +29,7 @@ PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public License along
 with gqylpy-ssh. If not, see <https://www.gnu.org/licenses/>.
 """
-__version__ = 1, 0, 3
+__version__ = 1, 1
 __author__ = '竹永康 <gqylpy@outlook.com>'
 __source__ = 'https://github.com/gqylpy/gqylpy-ssh'
 
@@ -350,7 +350,6 @@ class Command:
     def status_output(self) -> 'Tuple[bool, str]':
         return self.status, self.output
 
-    @property
     def output_else_raise(self) -> str:
         self.raise_if_error()
         return self.output
