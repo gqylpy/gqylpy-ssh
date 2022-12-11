@@ -1,18 +1,4 @@
 """
-─────────────────────────────────────────────────────────────────────────────────────────────────────
-─██████████████─██████████████───████████──████████─██████─────────██████████████─████████──████████─
-─██░░░░░░░░░░██─██░░░░░░░░░░██───██░░░░██──██░░░░██─██░░██─────────██░░░░░░░░░░██─██░░░░██──██░░░░██─
-─██░░██████████─██░░██████░░██───████░░██──██░░████─██░░██─────────██░░██████░░██─████░░██──██░░████─
-─██░░██─────────██░░██──██░░██─────██░░░░██░░░░██───██░░██─────────██░░██──██░░██───██░░░░██░░░░██───
-─██░░██─────────██░░██──██░░██─────████░░░░░░████───██░░██─────────██░░██████░░██───████░░░░░░████───
-─██░░██──██████─██░░██──██░░██───────████░░████─────██░░██─────────██░░░░░░░░░░██─────████░░████─────
-─██░░██──██░░██─██░░██──██░░██─────────██░░██───────██░░██─────────██░░██████████───────██░░██───────
-─██░░██──██░░██─██░░██──██░░██─────────██░░██───────██░░██─────────██░░██───────────────██░░██───────
-─██░░██████░░██─██░░██████░░████───────██░░██───────██░░██████████─██░░██───────────────██░░██───────
-─██░░░░░░░░░░██─██░░░░░░░░░░░░██───────██░░██───────██░░░░░░░░░░██─██░░██───────────────██░░██───────
-─██████████████─████████████████───────██████───────██████████████─██████───────────────██████───────
-─────────────────────────────────────────────────────────────────────────────────────────────────────
-
 Copyright (c) 2022 GQYLPY <http://gqylpy.com>. All rights reserved.
 
 This file is part of gqylpy-ssh.
@@ -36,34 +22,47 @@ import functools
 import threading
 
 import paramiko
-from paramiko import SSHClient, AutoAddPolicy
-from paramiko.channel import ChannelFile, ChannelStderrFile
+
+from paramiko import SSHClient
+from paramiko import AutoAddPolicy
+
+from paramiko.ssh_exception import SSHException
+from paramiko.ssh_exception import NoValidConnectionsError
+
+from paramiko.channel import ChannelFile
+from paramiko.channel import ChannelStderrFile
 
 first: 'GqylpySSH'
 
-gpack = sys.modules[__package__]
-gcode = sys.modules[__name__]
+gpack, gcode = sys.modules[__package__], sys.modules[__name__]
 
 
-def __init__(hostname: str, *, gname: str = None, **params) -> 'GqylpySSH':
-    gobj = GqylpySSH(hostname, **params)
+def __init__(
+        hostname: str,
+        port:     int,
+        *,
+        gname:    str = None,
+        **params
+) -> 'GqylpySSH':
+    gobj = GqylpySSH(hostname, port, **params)
+
+    if gname is None:
+        return gobj
+
+    if gname.__class__ is not str:
+        x: str = gname.__class__.__name__
+        raise TypeError(f'gname type must be "str", not "{x}".')
 
     if not hasattr(gcode, 'first'):
         gcode.first = gobj
 
-    if gname is not None:
-        if gname.__class__ is not str:
-            x: str = gname.__class__.__name__
-            raise TypeError(f'gname type must be a "str", not "{x}".')
-        setattr(gpack, gname, gobj)
-
-    return gobj
+    setattr(gpack, gname, gobj)
 
 
 class GqylpySSH(SSHClient):
 
-    def __init__(self, hostname: str, **params):
-        super().__init__()
+    def __init__(self, hostname: str, port: int, **params):
+        SSHClient.__init__(self)
         self.set_missing_host_key_policy(AutoAddPolicy())
 
         key_filename: str = params.get('key_filename')
@@ -76,10 +75,21 @@ class GqylpySSH(SSHClient):
         else:
             pkey = None
 
-        self.connect(hostname, **params, pkey=pkey)
+        self.command_timeout: int  = params.pop('command_timeout', None)
+        self.auto_sudo:       bool = params.pop('auto_sudo', False)
+        self.reconnect:       bool = params.pop('reconnect', False)
+
+        self.connect(hostname, port, **params, pkey=pkey)
+
+        params['pkey'] = pkey
+        self.hostname  = hostname
+        self.params    = params
 
     def __del__(self):
-        self.close()
+        try:
+            self.close()
+        except AttributeError:
+            pass
 
     def cmd(
             self,
@@ -123,13 +133,37 @@ class GqylpySSH(SSHClient):
                 get_pty=get_pty,
                 env=env
             )
-        _, stdout, stderr = self.exec_command(
-            command=f'{command} && echo 4289077',
-            timeout=timeout,
-            bufsize=bufsize,
-            get_pty=get_pty,
-            environment=env
-        )
+
+        if self.auto_sudo and not command.startswith('sudo '):
+            command = f'sudo {command}'
+
+        command += '&& echo 4289077'
+        timeout = timeout or self.command_timeout
+
+        try:
+            _, stdout, stderr = self.exec_command(
+                command=command,
+                timeout=timeout,
+                bufsize=bufsize,
+                get_pty=get_pty,
+                environment=env
+            )
+        except (SSHException, ConnectionResetError) as e:
+            if not self.reconnect:
+                raise e
+            try:
+                self.connect(self.hostname, **self.params)
+            except (TimeoutError, NoValidConnectionsError):
+                raise e
+            else:
+                _, stdout, stderr = self.exec_command(
+                    command=command,
+                    timeout=timeout,
+                    bufsize=bufsize,
+                    get_pty=get_pty,
+                    environment=env
+                )
+
         return Command(command, stdout, stderr)
 
     def cmd_many(self, commands: (tuple, list), **kw):
@@ -212,7 +246,7 @@ class Command:
     def output_else_define(self, define=None):
         return self.output if self.status else define
 
-    def contain_string(self, string: str) -> bool:
+    def contain(self, string: str) -> bool:
         return string in self.output
 
     def contain_string_else_raise(self, string: str):
@@ -226,14 +260,15 @@ class Command:
         raise SSHCommandError(f'({self.command}): "{self.output}"')
 
     def output2dict(self, split: str = None):
-        return table2dict(self.output_else_raise, split=split)
+        return table2dict(self.output_else_raise(), split=split)
 
 
 def table2dict(table: str, *, split: str = None):
-    result = [[value.strip() for value in line.split(split)]
-              for line in table.splitlines()]
-    keys = [key.lower() for key in result[0]]
-    return (dict(zip(keys, values)) for values in result[1:])
+    lines = ((
+        column.strip() for column in line.split(split)
+    ) for line in table.splitlines())
+    titles = tuple(next(lines))
+    return (dict(zip(titles, line)) for line in lines)
 
 
 def gname2gobj(func):

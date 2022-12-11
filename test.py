@@ -1,11 +1,6 @@
-import gqylpy_ssh as gssh
+from gqylpy_ssh import GqylpySSH, Command
 
-ssh = gssh.__init__(
-    hostname='192.168.1.7',
-    username='gqylpy',
-    password=...,
-    timeout=15
-)
+ssh = GqylpySSH('192.168.1.7', 22, username='gqylpy', password=...)
+c: Command = ssh.cmd('echo Hi, GQYLPY')
 
-x = ssh.cmd('hostname', timeout=4)
-print(x.status_output)
+print(c.status_output)

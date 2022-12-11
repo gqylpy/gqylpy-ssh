@@ -6,88 +6,16 @@
 
 # gqylpy-ssh
 
-本源代码使用了 paramiko 库，这个库是基于 LGPL 协议发布的。
-
 > 在远程服务器执行命令并得到执行结果，它是对 paramiko 库的二次封装。在 `Command` 对象中，提供了多种方法用于判断命令执行结果是否如期。
 
 <kbd>pip3 install gqylpy_ssh</kbd>
 
-首先初始化 `GqylpySSH` 实例：
 ```python
-import gqylpy_ssh as gssh
+>>> from gqylpy_ssh import GqylpySSH, Command
 
-gssh.__init__(
-    hostname='192.168.1.7',
-    username='gqylpy',
-    password=...
-)
-```
+>>> ssh = GqylpySSH('192.168.1.7', 22, username='gqylpy', password=...)
+>>> c: Command = ssh.cmd('echo Hi, GQYLPY')
 
-通过 `cmd` 函数在远程服务器执行命令，它返回一个 `Command` 对象：
-```python
-c = gssh.cmd('hostname')
-```
-
-若命令执行失败，调用此方法将抛出异常：
-```python
-c.raise_if_error()
-```
-
-获得命令状态或/和输出：
-```python
-status: bool   = c.status
-output: str    = c.output
-status, output = c.status_output
-```
-
-获得命令输出，若命令执行错误，将抛出异常：
-```python
-output: str = c.output_else_raise()
-```
-
-获得命令输出，若命令执行错误，将返回 "define value"：
-```python
-output: str = c.output_else_define('define value')
-```
-
-检查命令输出是否包含某个字符串，得到一个布尔值：
-```python
-x: bool = c.contain_string('string')
-```
-
-检查命令输出是否包含某个字符串，否则抛出异常：
-```python
-c.contain_string_else_raise('string')
-```
-
-获得命令输出，如果输出包含某个字符串，否则抛出异常：
-```python
-output: str = c.output_if_contain_string_else_raise('string')
-```
-
-这个方法可将带有标题的输出转为字典：
-```python
-it = c.output2dict('kubectl get nodes')
-```
-___
-
-如果你需要创建多个 `GqylpySSH` 实例：
-```python
-from gqylpy_ssh import GqylpySSH, Command
-
-ssh = GqylpySSH('192.168.1.7', **params)
-c: Command = ssh.cmd('hostname')
-output: str = c.output_else_raise
-```
-
-```python
-import gqylpy_ssh as gssh
-
-gssh.__init__('192.168.1.7', **params, gname='1.7')
-gssh.__init__('192.168.1.9', **params, gname='1.9')
-
-output: str = gssh.cmd('hostname', gname='1.7').output_else_raise
-output: str = gssh.cmd('hostname', gname='1.9').output_else_raise
-
-gssh.cmd('hostname').output == gssh.cmd('hostname', gname='1.7').output
+>>> c.status_output
+(True, 'Hi, GQYLPY')
 ```
