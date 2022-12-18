@@ -259,16 +259,17 @@ class Command:
             return output
         raise SSHCommandError(f'({self.command}): "{self.output}"')
 
-    def output2dict(self, split: str = None):
-        return table2dict(self.output_else_raise(), split=split)
+    def table2dict(self, *, split: str = None):
+        lines = (
+            line.split(split) for line in self.output_else_raise().splitlines()
+        )
+        titles = tuple(next(lines))
+        return (dict(zip(titles, line)) for line in lines)
 
-
-def table2dict(table: str, *, split: str = None):
-    lines = ((
-        column.strip() for column in line.split(split)
-    ) for line in table.splitlines())
-    titles = tuple(next(lines))
-    return (dict(zip(titles, line)) for line in lines)
+    def line2list(self, *, split: str = None):
+        yield from (
+            line.split(split) for line in self.output_else_raise().splitlines()
+        )
 
 
 def gname2gobj(func):

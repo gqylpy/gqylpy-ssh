@@ -10,7 +10,7 @@ expected.
     >>> c.status_output
     (True, 'Hi, GQYLPY')
 
-    @version: 1.2
+    @version: 1.2.1
     @author: 竹永康 <gqylpy@outlook.com>
     @source: https://github.com/gqylpy/gqylpy-ssh
 
@@ -414,9 +414,11 @@ class Command:
             return self.output
         raise SSHCommandError
 
-    def output2dict(self, split: str = None) -> 'Generator':
-        """Used to turn the command output result with a title
-        into a dictionary, such as `kubectl get nodes`."""
+    def table2dict(self, *, split: str = None) -> 'Generator':
+        """Convert the titled output to dictionary."""
+
+    def line2list(self, *, split: str = None) -> 'Generator':
+        """Convert to list by line."""
 
 
 def gname2gobj(func):
@@ -516,6 +518,19 @@ def cmd_async(
         env=env
     )
 
+
+SSHException              = paramiko.ssh_exception.SSHException
+AuthenticationException   = paramiko.ssh_exception.AuthenticationException
+PasswordRequiredException = paramiko.ssh_exception.PasswordRequiredException
+BadAuthenticationType     = paramiko.ssh_exception.BadAuthenticationType
+PartialAuthentication     = paramiko.ssh_exception.PartialAuthentication
+ChannelException          = paramiko.ssh_exception.ChannelException
+BadHostKeyException       = paramiko.ssh_exception.BadHostKeyException
+IncompatiblePeer          = paramiko.ssh_exception.IncompatiblePeer
+ProxyCommandFailure       = paramiko.ssh_exception.ProxyCommandFailure
+NoValidConnectionsError   = paramiko.ssh_exception.NoValidConnectionsError
+CouldNotCanonicalize      = paramiko.ssh_exception.CouldNotCanonicalize
+ConfigParseError          = paramiko.ssh_exception.ConfigParseError
 
 import sys
 import threading
