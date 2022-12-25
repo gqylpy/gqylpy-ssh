@@ -39,7 +39,7 @@ gpack, gcode = sys.modules[__package__], sys.modules[__name__]
 
 def __init__(
         hostname: str,
-        port:     int,
+        port:     int = 22,
         *,
         gname:    str = None,
         **params
@@ -61,7 +61,7 @@ def __init__(
 
 class GqylpySSH(SSHClient):
 
-    def __init__(self, hostname: str, port: int, **params):
+    def __init__(self, hostname: str, port: int = 22, **params):
         SSHClient.__init__(self)
         self.set_missing_host_key_policy(AutoAddPolicy())
 

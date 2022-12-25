@@ -24,7 +24,7 @@ setuptools.setup(
     license='LGPL',
     url='http://gqylpy.com',
     project_urls={'Source': source},
-    description='',
+    description='在远程服务器执行命令并得到执行结果，它是对 paramiko 库的二次封装。',
     long_description=long_description,
     long_description_content_type='text/markdown',
     packages=[g.__name__],

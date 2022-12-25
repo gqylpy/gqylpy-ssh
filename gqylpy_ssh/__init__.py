@@ -10,7 +10,7 @@ expected.
     >>> c.status_output
     (True, 'Hi, GQYLPY')
 
-    @version: 1.2.1
+    @version: 1.2.2
     @author: 竹永康 <gqylpy@outlook.com>
     @source: https://github.com/gqylpy/gqylpy-ssh
 
