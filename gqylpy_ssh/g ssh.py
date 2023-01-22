@@ -1,5 +1,5 @@
 """
-Copyright (c) 2022 GQYLPY <http://gqylpy.com>. All rights reserved.
+Copyright (c) 2022, 2023 GQYLPY <http://gqylpy.com>. All rights reserved.
 
 This file is part of gqylpy-ssh.
 
@@ -230,8 +230,9 @@ class Command:
     def output(self) -> str:
         output: bytes = self.stdout[:-9] if self.status else self.stdout
         if self.stderr:
-            join: bytes = b'; ' if self.stdout else b''
-            output: bytes = self.stdout + join + self.stderr
+            output: bytes = output + (
+                b'\r\n' if self.stdout else b''
+            ) + self.stderr
         return output.decode()
 
     @property
@@ -239,9 +240,8 @@ class Command:
         return self.status, self.output
 
     def output_else_raise(self) -> str:
-        if self.status:
-            return self.output
-        raise SSHCommandError(f'({self.command}) {self.output}')
+        self.raise_if_error()
+        return self.stdout[:-9].decode()
 
     def output_else_define(self, define=None):
         return self.output if self.status else define

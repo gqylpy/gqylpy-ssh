@@ -10,12 +10,12 @@ expected.
     >>> c.status_output
     (True, 'Hi, GQYLPY')
 
-    @version: 1.2.2
+    @version: 1.2.3
     @author: 竹永康 <gqylpy@outlook.com>
     @source: https://github.com/gqylpy/gqylpy-ssh
 
 ────────────────────────────────────────────────────────────────────────────────
-Copyright (c) 2022 GQYLPY <http://gqylpy.com>. All rights reserved.
+Copyright (c) 2022, 2023 GQYLPY <http://gqylpy.com>. All rights reserved.
 
 This file is part of gqylpy-ssh.
 
