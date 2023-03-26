@@ -10,7 +10,7 @@ expected.
     >>> c.status_output
     (True, 'Hi, GQYLPY')
 
-    @version: 1.2.3
+    @version: 1.2.4
     @author: 竹永康 <gqylpy@outlook.com>
     @source: https://github.com/gqylpy/gqylpy-ssh
 
@@ -306,8 +306,8 @@ class GqylpySSH(paramiko.SSHClient):
             self,
             commands: 'Union[list, tuple]',
             *,
-            timeout: int = None,
-            bufsize: int = None,
+            timeout: int  = None,
+            bufsize: int  = None,
             get_pty: bool = None,
             env:     dict = None
     ) -> 'Generator':
@@ -345,8 +345,8 @@ class GqylpySSH(paramiko.SSHClient):
             self,
             command: str,
             *,
-            timeout: int = None,
-            bufsize: int = None,
+            timeout: int  = None,
+            bufsize: int  = None,
             get_pty: bool = None,
             env:     dict = None
     ) -> 'threading.Thread':
@@ -379,7 +379,7 @@ class Command:
     def __init__(self, command: str, *a):
         self.command: str = command
 
-    def raise_if_error(self):
+    def raise_if_error(self) -> None:
         if not self.status:
             raise SSHCommandError
 
@@ -399,14 +399,20 @@ class Command:
         self.raise_if_error()
         return self.output
 
-    def output_else_define(self, define=None):
+    def output_else_define(self, define=None) -> 'Any':
         return self.output if self.status else define
 
-    def contain(self, string: str) -> bool:
-        return string in self.output
+    def contain(self, string: str, *, ignore_case: bool = False) -> bool:
+        output: str = self.output
+        if ignore_case:
+            string: str = string.lower()
+            output: str = output.lower()
+        return string in output
 
-    def contain_string_else_raise(self, string: str):
-        if not self.contain(string):
+    def contain_string_else_raise(
+            self, string: str, *, ignore_case: bool = False
+    ) -> None:
+        if not self.contain(string, ignore_case=ignore_case):
             raise SSHCommandError
 
     def output_if_contain_string_else_raise(self, string: str) -> str:
@@ -439,8 +445,8 @@ def gname2gobj(func):
 def cmd(
         command: str,
         *,
-        timeout: int = None,
-        bufsize: int = None,
+        timeout: int  = None,
+        bufsize: int  = None,
         get_pty: bool = None,
         env:     dict = None,
         gname:  'Union[str, GqylpySSH]' = None
@@ -467,8 +473,8 @@ def cmd(
 def cmd_many(
         commands: 'Union[list, tuple]',
         *,
-        timeout: int = None,
-        bufsize: int = None,
+        timeout: int  = None,
+        bufsize: int  = None,
         get_pty: bool = None,
         env:     dict = None,
         gname:  'Union[str, GqylpySSH]' = None
@@ -495,8 +501,8 @@ def cmd_many(
 def cmd_async(
         command: str,
         *,
-        timeout: int = None,
-        bufsize: int = None,
+        timeout: int  = None,
+        bufsize: int  = None,
         get_pty: bool = None,
         env:     dict = None,
         gname:  'Union[str, GqylpySSH]' = None
@@ -534,63 +540,13 @@ ConfigParseError          = paramiko.ssh_exception.ConfigParseError
 
 import sys
 import threading
-from typing import Union, Tuple, Generator
+from typing import Union, Tuple, Generator, Any
 
 __first__: GqylpySSH
 __gpack__ = sys.modules[__name__]
 
 
 class _xe6_xad_x8c_xe7_x90_xaa_xe6_x80_xa1_xe7_x8e_xb2_xe8_x90_x8d_xe4_xba_x91:
-    """  QYYYQLLYYYYYYYQLYYQYYQQQYQQYQQQQQQQQQQQQQQQQQQQQQQYYYQQQQQQYL
-        YYYYQYLLQYLLYYQYYYYYYYQQYQYQYQQQQQQQQQQQQQQQQQQQQQQQYYYQQQQQQ
-        QYYYYLPQYLPLYYYLLYYYYYYYYQQQYQQQQQQQQQQQQQQQQQQQQQQQYYYYQQQQQP
-        QYYQLPLQYLLYYQPLLLYYYYYYQYYQYQQQQQQQQQQQQQQYQQQQQQQQYYQYQQQQQQP
-       QYYQYLLYYYLLYQYLLYYYYYYYYQYYQYQYYYQQQQQQQQQQYQQQQQQYQQYQYYQQQQQYP
-      LQYQYYYYQYYYYYQYYYYYYYYYYYYYYYQQYYYYYYYYYQQQQYQQQQQQYQQYQYYQQQQQQ P
-      QYQQYYYYQYYYQQQYYYYYYYYQYQYYYYQQYYYQYQYYQQQQYQQQQQQQYQQYQYYQQQQQQ P
-      QYQQYYYYQYYYQQQYYYYYYYYQYQYYYYYQYYYYQYYYQQQQYQQQQQQQYQQYQQYQQQQYYP
-      QYQYYYYYQYYYQQQ PYLLLYP PLYYYYYYQYYYYYYQQQQYYQQQQQQYQQYQQQYQQQQYQ
-      PQQYYYYYQYYQQYQQQQQQQQQQYP        PPLYQYQYQYQLQQQQQYQQYQQQYYQQQYY
-       QQYYYYYQQYQLYQQPQQQQQL QYL           PPYYLYYLQYQQYYQYQQQQYYQPQYL
-       YQYYYYQQQYQ  LYLQQQQQQYQQ           YQQQQQGQQQQQQYQYYQQQQYQPQYQ P
-      L QYYYYQQLYQ   Y YPYQQQQQ           LQQQQQL YQQQQYQQYQYQQYYQQYQP P
-        YYQYYQQ  Q    LQQQQQQY            YQYQQQQQQYYQYLQYQQYQQYYQYQL P
-     Y  LYQLQQPL Y     P  P                QLLQQQQQ Q  PQQQQYQQYYQQL P
-    P   PYQYQQQQPQ                         PQQQQQQY    QQYQYYQQYYQPP
-    L    QQQYQ YYYY              PQ           L  P    LPQYQYYQQLQ P
-    Y   PPQQYYL LYQL                                 PQLQYQQYQYQ  L
-    Y     QQYQPP PYQY        PQ                      Q  QQYQYQYL  L
-    Y     QQYYQ L  QYQP         PLLLLLYL           LQQ LQYYQQQP P L
-     L   PPLQYYQ Y  LQQQ                         LQYQ  QYYYQQ     P
-      L    Q  QYQ  Y  QQPYL                   PQYYYYPPQYYQQQP    L
-       L    L  PQQL   LYQ  PQP             QL PYYYPLQLYQ  QY P   Y
-         P   P    PQQP  QY  QLLQQP   LYYLQ   PQYPQQQP P  QY P   L
-                       PYQYYY           PQ  PQ      L   Q P    L
-              PQYLYYYPQ PLPL             L QY YQYYQYLYQQQ    P
-            PYLLLLLYYYQ P  L    P         PYL  PQYYLLLLLLLQ
-           LYPLLLLLLYYYY   Y  YQY     LLLPPY   LYYYLLLLLLLLY
-           YLLLYLLLLLLYYQ  Q              PQ  YYYLLLLLLLLLLYP
-          YLLLLLLLLLLLLLLYQQ              PYYQYYLLLLLLLLYYYLQ
-          QLLLLLLLLLLLLLLLLLYYQYP        YQYYLLLLLLLLLLLLLLLQ
-          YLLLLLLLLLLLLLLLLLLLYYYLLYYYLLLLLLLLLLLLLLLLLLLLLLYP
-         PLLLLLLLLLLLLLLLLLLLLLLLYLLLLLLLLLLLLLLLLLLLLLLLYLYLL
-         LLLLLLLLLLYYLLLLLLYLLLLLLLLLLLLLLLL GQYLPY LLLYLYLLLY
-         QLLLLYYLYLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLQYYYYLLQ
-         QLLLLLYYQYLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLQLYYLLLQ
-        LYLLYLLLQYYLLLLLLLLLLLLLLLLLLLLLLLLLLLLLYLLLLLQYYYYYLYQ
-        YLLLYYLLYQYLLLLLLLLLLLLLLLLLLLLLLLLLLLLYLLLLLYYYYQLLLLY
-        QLLLYYYYYQLLLLLLLLLLLLLLYLLLLLLLLLLLLLLLLLLLLYYYLQLLPLLQ
-        YLYLLQYYYQLLLLLLLLLLLLLLLLLLLLLLLLLLLLYYLLLLLYYQYYLLLLLQ
-       LYLLLLLYYYQLLYLLLLLLLLLLLLYLYLLYYLLLLYLLLLLLLYYYQQLLLLLLLY
-       YLLLLLLYYYQLLYLLLLLLLYLYLLLLLLLLLLLLLLLLLLLLYYYYQQLYLLLLLQ
-       QLLLYLLLQYQLQLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLYYYQYYLLLLLLLY
-       QLLLLLLLLQQYQLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLQYYQYYLLLLLLLQ
-       QLLLLLLLLLQQYLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLYYYYLLLLLLLLLYL
-       QLLLLYLYYLYQLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLQYYYLLLLLLLLLQ
-       YLLLLLLLYYLQLLLLLLLLLLLLLLLLLLLLLLLLLYLLLLLLLLYQYYLLLLLLLLLQ
-       QLLLLLYLYYYYLLLLLPLLLLLLLYLYLLLLLLLLLLLLLLLLLLLQYYLLLLLLLLYP
-       YYLYYLLYYYQLLLLLLLLYLLLLLLLLLLLLLLLLLLLLLLYLYLLYQYYLLLLLLYL
-        QLLLLLLYQYLLLLLLLLLLLLLLLLLLLLLYYLYLLLLLLLLLLLYQQQQQQQLYL  """
     __import__(f'{__name__}.g {__name__[7:]}')
     gcode = globals()[f'g {__name__[7:]}']
 

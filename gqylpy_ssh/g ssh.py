@@ -246,11 +246,16 @@ class Command:
     def output_else_define(self, define=None):
         return self.output if self.status else define
 
-    def contain(self, string: str) -> bool:
-        return string in self.output
+    def contain(self, string: str, *, ignore_case: bool = False) -> bool:
+        output: str = self.output
+        if ignore_case:
+            string, output = string.lower(), output.lower()
+        return string in output
 
-    def contain_string_else_raise(self, string: str):
-        if string not in self.output:
+    def contain_string_else_raise(
+            self, string: str, *, ignore_case: bool = False
+    ):
+        if not self.contain(string, ignore_case=ignore_case):
             raise SSHCommandError(f'({self.command}): "{self.output}"')
 
     def output_if_contain_string_else_raise(self, string: str) -> str:
