@@ -34,7 +34,8 @@ from paramiko.channel import ChannelStderrFile
 
 first: 'GqylpySSH'
 
-gpack, gcode = sys.modules[__package__], sys.modules[__name__]
+gpack = sys.modules[__package__]
+gcode = sys.modules[__name__]
 
 
 def __init__(
@@ -88,7 +89,7 @@ class GqylpySSH(SSHClient):
     def __del__(self):
         try:
             self.close()
-        except AttributeError:
+        except (TypeError, AttributeError):
             pass
 
     def cmd(
@@ -175,7 +176,7 @@ class GqylpySSH(SSHClient):
                     warnings.warn(
                         'note that running multiple commands '
                         'in tuple mode cannot use asynchrony "&".'
-                    )
+                    , stacklevel=2)
                 co: Command = self.cmd(c, **kw)
                 co.raise_if_error()
                 yield co

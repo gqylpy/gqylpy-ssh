@@ -10,7 +10,7 @@ expected.
     >>> c.status_output
     (True, 'Hi, GQYLPY')
 
-    @version: 1.2.4
+    @version: 1.2.5
     @author: 竹永康 <gqylpy@outlook.com>
     @source: https://github.com/gqylpy/gqylpy-ssh
 
@@ -32,6 +32,11 @@ You should have received a copy of the GNU Lesser General Public License along
 with gqylpy-ssh. If not, see <https://www.gnu.org/licenses/>.
 """
 import paramiko
+import threading
+
+from typing import Union, Tuple, Generator, Any
+
+__first__: 'GqylpySSH'
 
 
 def __init__(
@@ -138,10 +143,12 @@ def __init__(
     if gname is None:
         return gobj
 
-    setattr(__gpack__, gname, gobj)
+    gpack = globals()
 
-    if not hasattr(__gpack__, '__first__'):
-        __gpack__.__first__ = gobj
+    if '__first__' not in gpack:
+        gpack['__first__'] = gobj
+
+    gpack[gname] = gobj
 
 
 class GqylpySSH(paramiko.SSHClient):
@@ -304,13 +311,13 @@ class GqylpySSH(paramiko.SSHClient):
 
     def cmd_many(
             self,
-            commands: 'Union[list, tuple]',
+            commands: Union[list, tuple],
             *,
             timeout: int  = None,
             bufsize: int  = None,
             get_pty: bool = None,
             env:     dict = None
-    ) -> 'Generator':
+    ) -> Generator:
         """
         @param commands: A commands tuple or list.
         @param timeout:  Execute command timeout, default permanent.
@@ -392,14 +399,14 @@ class Command:
         return process(command_output)
 
     @property
-    def status_output(self) -> 'Tuple[bool, str]':
+    def status_output(self) -> Tuple[bool, str]:
         return self.status, self.output
 
     def output_else_raise(self) -> str:
         self.raise_if_error()
         return self.output
 
-    def output_else_define(self, define=None) -> 'Any':
+    def output_else_define(self, define=None) -> Any:
         return self.output if self.status else define
 
     def contain(self, string: str, *, ignore_case: bool = False) -> bool:
@@ -420,19 +427,19 @@ class Command:
             return self.output
         raise SSHCommandError
 
-    def table2dict(self, *, split: str = None) -> 'Generator':
+    def table2dict(self, *, split: str = None) -> Generator:
         """Convert the titled output to dictionary."""
 
-    def line2list(self, *, split: str = None) -> 'Generator':
+    def line2list(self, *, split: str = None) -> Generator:
         """Convert to list by line."""
 
 
 def gname2gobj(func):
-    def inner(*a, gname: 'Union[str, GqylpySSH]' = None, **kw) -> Command:
+    def inner(*a, gname: Union[str, GqylpySSH] = None, **kw) -> Command:
         if gname is None:
             gobj: GqylpySSH = __first__
         elif gname.__class__ is str:
-            gobj: GqylpySSH = getattr(__gpack__, gname)
+            gobj: GqylpySSH = globals()[gname]
         elif gname.__class__ is GqylpySSH:
             gobj: GqylpySSH = gname
         else:
@@ -449,7 +456,7 @@ def cmd(
         bufsize: int  = None,
         get_pty: bool = None,
         env:     dict = None,
-        gname:  'Union[str, GqylpySSH]' = None
+        gname:   Union[str, GqylpySSH] = None
 ) -> Command:
     """
     @param command: A command string.
@@ -471,14 +478,14 @@ def cmd(
 
 @gname2gobj
 def cmd_many(
-        commands: 'Union[list, tuple]',
+        commands: Union[list, tuple],
         *,
         timeout: int  = None,
         bufsize: int  = None,
         get_pty: bool = None,
         env:     dict = None,
-        gname:  'Union[str, GqylpySSH]' = None
-) -> 'Generator':
+        gname:   Union[str, GqylpySSH] = None
+) -> Generator:
     """
     @param commands: A commands tuple or list.
     @param timeout:  Execute command timeout, default permanent.
@@ -505,8 +512,8 @@ def cmd_async(
         bufsize: int  = None,
         get_pty: bool = None,
         env:     dict = None,
-        gname:  'Union[str, GqylpySSH]' = None
-) -> 'threading.Thread':
+        gname:   Union[str, GqylpySSH] = None
+) -> threading.Thread:
     """
     @param command: A command string.
     @param timeout: Execute command timeout, default permanent.
@@ -538,22 +545,19 @@ NoValidConnectionsError   = paramiko.ssh_exception.NoValidConnectionsError
 CouldNotCanonicalize      = paramiko.ssh_exception.CouldNotCanonicalize
 ConfigParseError          = paramiko.ssh_exception.ConfigParseError
 
-import sys
-import threading
-from typing import Union, Tuple, Generator, Any
-
-__first__: GqylpySSH
-__gpack__ = sys.modules[__name__]
-
 
 class _xe6_xad_x8c_xe7_x90_xaa_xe6_x80_xa1_xe7_x8e_xb2_xe8_x90_x8d_xe4_xba_x91:
-    __import__(f'{__name__}.g {__name__[7:]}')
-    gcode = globals()[f'g {__name__[7:]}']
+    gpack = globals()
+    gpath = f'{__name__}.g {__name__[7:]}'
+    gcode = __import__(gpath, fromlist=...)
 
-    for gname in globals():
-        if gname[0] != '_' and hasattr(gcode, gname):
+    for gname in gpack:
+        try:
+            assert gname[0] != '_' or gname == '__init__'
             gfunc = getattr(gcode, gname)
-            gfunc.__module__ = __package__
-            setattr(__gpack__, gname, gfunc)
-
-    setattr(__gpack__, '__init__', gcode.__init__)
+            assert gfunc.__module__ in (gpath, __package__)
+        except (AssertionError, AttributeError):
+            continue
+        gfunc.__module__ = __package__
+        gfunc.__doc__ = gpack[gname].__doc__
+        gpack[gname] = gfunc
