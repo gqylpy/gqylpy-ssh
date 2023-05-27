@@ -2,7 +2,7 @@
 [![Release](https://img.shields.io/github/release/gqylpy/gqylpy-ssh.svg?style=flat-square")](https://github.com/gqylpy/gqylpy-ssh/releases/latest)
 [![Python Versions](https://img.shields.io/pypi/pyversions/gqylpy_ssh)](https://pypi.org/project/gqylpy_ssh)
 [![License](https://img.shields.io/pypi/l/gqylpy_ssh)](https://github.com/gqylpy/gqylpy-ssh/blob/master/LICENSE)
-[![Downloads](https://pepy.tech/badge/gqylpy_ssh/month)](https://pepy.tech/project/gqylpy_ssh)
+[![Downloads](https://pepy.tech/badge/gqylpy_ssh)](https://pepy.tech/project/gqylpy_ssh)
 
 # gqylpy-ssh
 

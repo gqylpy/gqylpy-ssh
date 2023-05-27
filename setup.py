@@ -2,16 +2,14 @@ import setuptools
 import pkg_resources
 import gqylpy_ssh as g
 
-with open(g.__file__, encoding='UTF-8') as f:
-    for line in f:
-        if line.startswith('@version: ', 4):
-            version = line.split()[-1]
-            break
-    author, email = f.readline().split(maxsplit=1)[-1].rstrip().split()
-    source = f.readline().split()[-1]
+gdoc: list = g.__doc__.split('\n')
 
-with open('requirements.txt', encoding='UTF-8') as f:
-    requires = [str(x) for x in pkg_resources.parse_requirements(f)]
+for index, line in enumerate(gdoc):
+    if line.startswith('@version: ', 4):
+        version = line.split()[-1]
+        break
+_, author, email = gdoc[index + 1].split()
+source = gdoc[index + 2].split()[-1]
 
 setuptools.setup(
     name=g.__name__,
@@ -26,17 +24,20 @@ setuptools.setup(
     long_description_content_type='text/markdown',
     packages=[g.__name__],
     python_requires='>=3.6, <4',
-    install_requires=requires,
+    install_requires=[str(x) for x in pkg_resources.parse_requirements(
+        open('requirements.txt', encoding='utf8')
+    )],
     classifiers=[
-        'Environment :: Web Environment',
+        'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: GNU Library or Lesser General Public '
                                     'License (LGPL)',
+        'Natural Language :: Chinese (Simplified)',
+        'Natural Language :: English',
         'Operating System :: OS Independent',
-        'Topic :: Text Processing :: Indexing',
-        'Topic :: Utilities',
-        'Topic :: Internet',
         'Topic :: Software Development :: Libraries :: Python Modules',
+        'Topic :: Terminals :: Telnet',
+        'Topic :: Security :: Cryptography',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',

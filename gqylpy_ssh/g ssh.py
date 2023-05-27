@@ -15,7 +15,6 @@ PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public License along
 with gqylpy-ssh. If not, see <https://www.gnu.org/licenses/>.
 """
-import sys
 import builtins
 import warnings
 import functools
@@ -34,8 +33,8 @@ from paramiko.channel import ChannelStderrFile
 
 first: 'GqylpySSH'
 
-gpack = sys.modules[__package__]
-gcode = sys.modules[__name__]
+gpack = __import__(__package__)
+gcode = globals()
 
 
 def __init__(
@@ -54,8 +53,8 @@ def __init__(
         x: str = gname.__class__.__name__
         raise TypeError(f'gname type must be "str", not "{x}".')
 
-    if not hasattr(gcode, 'first'):
-        gcode.first = gobj
+    if 'first' not in gcode:
+        gcode['first'] = gobj
 
     setattr(gpack, gname, gobj)
 
@@ -135,10 +134,12 @@ class GqylpySSH(SSHClient):
                 env=env
             )
 
-        if self.auto_sudo and not command.startswith('sudo '):
+        if self.auto_sudo and not (
+                self.params['username'] == 'root' or command.startswith('sudo ')
+        ):
             command = f'sudo {command}'
 
-        command += '&& echo 4289077'
+        command += ' && echo 4289077'
         timeout = timeout or self.command_timeout
 
         try:
@@ -165,7 +166,7 @@ class GqylpySSH(SSHClient):
                     environment=env
                 )
 
-        return Command(command, stdout, stderr)
+        return Command(command[:-16], stdout, stderr)
 
     def cmd_many(self, commands: (tuple, list), **kw):
         if commands.__class__ is tuple:
@@ -282,7 +283,7 @@ def gname2gobj(func):
     @functools.wraps(func)
     def inner(*a, gname: (str, GqylpySSH) = None, **kw):
         if gname is None:
-            if not hasattr(gcode, 'first'):
+            if 'first' not in gcode:
                 raise RuntimeError(
                     'you did not create the default GqylpySSH instance.'
                 )
@@ -322,8 +323,8 @@ def cmd_async(
     return gobj.cmd_async(command, **kw)
 
 
-class SSHCommandError(Exception):
+class SSHCommandError(SSHException):
     __module__ = 'builtins'
 
 
-builtins.SSHCommandError = SSHCommandError
+gpack.SSHCommandError = builtins.SSHCommandError = SSHCommandError

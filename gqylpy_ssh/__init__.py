@@ -10,7 +10,7 @@ expected.
     >>> c.status_output
     (True, 'Hi, GQYLPY')
 
-    @version: 1.2.5
+    @version: 1.2.6
     @author: 竹永康 <gqylpy@outlook.com>
     @source: https://github.com/gqylpy/gqylpy-ssh
 
@@ -104,7 +104,7 @@ def __init__(
                                 `.Channel`) to use for communication to the
                                 target host.
     @param auto_sudo:           Automatically add "sudo" to the front of the
-                                command.
+                                command, always invalid for root user.
     @param reconnect:           If the ssh connection is disconnected when you
                                 call method `self.cmd`, will attempt to
                                 reconnect.
@@ -144,10 +144,7 @@ def __init__(
         return gobj
 
     gpack = globals()
-
-    if '__first__' not in gpack:
-        gpack['__first__'] = gobj
-
+    gpack.setdefault('__first__', gobj)
     gpack[gname] = gobj
 
 
@@ -215,7 +212,7 @@ class GqylpySSH(paramiko.SSHClient):
                                     as a `.Channel`) to use for communication to
                                     the target host.
         @param auto_sudo:           Automatically add "sudo" to the front of the
-                                    command.
+                                    command, always invalid for root user.
         @param reconnect:           If the ssh connection is disconnected when
                                     you call method `self.cmd`, will attempt to
                                     reconnect.
@@ -273,7 +270,9 @@ class GqylpySSH(paramiko.SSHClient):
         @param env:     A dictionary of environment variables. Indication:
                         server may reject environment variables.
         """
-        if self.auto_sudo and not command.startswith('sudo '):
+        if self.auto_sudo and not (
+                self.params['username'] == 'root' or command.startswith('sudo ')
+        ):
             command = f'sudo {command}'
 
         if command[-1] == '&':
@@ -544,6 +543,10 @@ ProxyCommandFailure       = paramiko.ssh_exception.ProxyCommandFailure
 NoValidConnectionsError   = paramiko.ssh_exception.NoValidConnectionsError
 CouldNotCanonicalize      = paramiko.ssh_exception.CouldNotCanonicalize
 ConfigParseError          = paramiko.ssh_exception.ConfigParseError
+
+
+class SSHCommandError(SSHException):
+    ...
 
 
 class _xe6_xad_x8c_xe7_x90_xaa_xe6_x80_xa1_xe7_x8e_xb2_xe8_x90_x8d_xe4_xba_x91:
